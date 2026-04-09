@@ -1,6 +1,6 @@
-# Campus-Q-A-agent
+# Campus-agent
 
-基于 LangGraph 开发的符合Harness loop架构的校园问答智能体，采用 **Plan-Execute-Reflect-Report** 工作流，支持三路混合检索与深度研究能力。
+基于 LangGraph 开发的符合Harness loop架构的校园问答智能体，采用 **Plan-Execute-Reflect-Report** 硬编码工作流，构建知识图谱存储实体关系集，支持三路混合检索并集成深度研究能力。
 
 ## 架构
 
