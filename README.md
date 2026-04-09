@@ -1,12 +1,12 @@
 # Campus Agent
 
-基于 LangGraph 开发的校园智能问答系统，采用**硬编码工作流**架构，在 Plan-Execute-Reflect-Report 固定拓扑中集成 **GraphRAG** 三路混合检索能力。
+基于 LangGraph 开发的校园智能问答 Multi-agent 系统，采用**硬编码工作流**架构，在 Plan-Execute-Reflect-Report 固定拓扑中集成 **GraphRAG** 三路混合检索能力。
 
 ## 架构
 
 ### 工作流拓扑
 
-本系统是一个**具有复合工作流的单智能体**，而非多智能体系统。所有节点的调度逻辑、执行顺序与条件路由均在编译期静态确定，由 LangGraph 架构编码驱动循环执行。各节点是工作流中具有特定职责的处理单元，而非自主决策的独立 Agent。
+本系统采取**多智能体协同架构**，所有节点的调度逻辑、执行顺序与条件路由均在编译期静态确定，由 LangGraph 架构编码驱动循环执行，这种硬编码思路有效提升了系统稳定性。各节点在工作流中有专属的 System prompt 和 User prompt，虽然全局共享 Agenttate，但不同身份的 Agent 会对内容进行筛选与提取。
 
 ```mermaid
 flowchart LR
