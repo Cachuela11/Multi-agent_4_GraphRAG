@@ -8,33 +8,24 @@
 
 本系统是一个**硬编码拓扑工作流智能体**，而非多智能体系统。所有节点的调度逻辑、执行顺序与条件路由均在编译期静态确定，由 LangGraph Harness 驱动循环执行。各节点是工作流中具有特定职责的处理单元，而非自主决策的独立 Agent。
 
-```
-                        ┌─────────────────────────────────────┐
-                        │          Harness Loop                │
-                        │                                      │
-  User Query            │  ┌─────────┐     ┌──────────┐        │
-──────────────────────▶ │  │ Planner │────▶│ Executor │◀─┐     │
-                        │  │ 拆解问题 │     │ 检索+推理 │  │     │
-                        │  │ 识别图检索│     │DeepResearch│  │     │
-                        │  └─────────┘     └──────────┘  │     │
-                        │                       │         │     │
-                        │              子步骤未完成时循环    │     │
-                        │                       │         │     │
-                        │                       ▼         │     │
-                        │               ┌───────────┐     │     │
-                        │               │ Reflector │─────┘     │
-                        │               │  质量审查  │ needs_    │
-                        │               └───────────┘ revision  │
-                        │                       │               │
-                        │                       ▼               │
-                        │               ┌──────────┐            │
-                        │               │ Reporter │            │
-                        │               │ 汇总输出  │            │
-                        │               └──────────┘            │
-                        └─────────────────────────────────────┘
-                                         │
-                                         ▼
-                                    Final Answer
+```mermaid
+flowchart TD
+    Start([User Query]) --> Planner
+
+    subgraph Harness["Harness Loop"]
+        Planner["Planner\n拆解问题 · 识别图检索"]
+        Executor["Executor\n检索+推理 · DeepResearch"]
+        Reflector["Reflector\n质量审查"]
+        Reporter["Reporter\n汇总输出"]
+
+        Planner --> Executor
+        Executor -->|"current_step < len(plan)"| Executor
+        Executor -->|"current_step == len(plan)"| Reflector
+        Reflector -->|"needs_revision = True"| Executor
+        Reflector -->|"needs_revision = False"| Reporter
+    end
+
+    Reporter --> End([Final Answer])
 ```
 
 **固定拓扑路由规则：**
@@ -61,16 +52,17 @@
 
 在传统 Dense + BM25 双路检索基础上引入知识图谱（KG）召回，形成三路混合检索。
 
-```
-                    ┌─ Dense Search ─────────────────────────────┐
-                    │  ChromaDB HNSW cosine (bge-small-zh-v1.5)  │
-                    │                                            │
-Query ──────────────┼─ BM25 Search ───────────────────────────── ┼──▶ RRF 融合 ──▶ Cross-Encoder ──▶ Top-K
-                    │  BM25Okapi + jieba 分词                    │      (三路)      bge-reranker-base
-                    │                                            │
-                    └─ Graph Search (use_graph=True 时启用) ─────┘
-                       NetworkX DiGraph
-                       实体子串匹配 → 1-2 跳邻居展开 → 边路径文档化
+```mermaid
+flowchart LR
+    Q([Query]) --> Dense & BM25 & Graph
+
+    Dense["Dense Search\nChromaDB HNSW cosine\nbge-small-zh-v1.5"]
+    BM25["BM25 Search\nBM25Okapi + jieba"]
+    Graph["Graph Search\nNetworkX DiGraph\n实体匹配 → 1-2跳邻居展开\n仅 use_graph=True 时启用"]
+
+    Dense & BM25 & Graph --> RRF["RRF 融合（三路）"]
+    RRF --> CE["Cross-Encoder\nbge-reranker-base"]
+    CE --> TopK([Top-K 结果])
 ```
 
 
