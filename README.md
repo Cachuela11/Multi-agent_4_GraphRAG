@@ -1,6 +1,6 @@
-# Multi-agent-campus-Q-A-assistant
+# Campus-Q-A-agent
 
-基于 LangGraph 多智能体架构的校园智能问答助手，采用 **Plan-Execute-Reflect-Report** 工作流，支持混合检索与深度研究能力。
+基于 LangGraph 开发的符合Harness loop架构的校园问答智能体，采用 **Plan-Execute-Reflect-Report** 工作流，支持三路混合检索与深度研究能力。
 
 ## 架构
 
