@@ -9,7 +9,7 @@
 本系统是一个**硬编码拓扑工作流智能体**，而非多智能体系统。所有节点的调度逻辑、执行顺序与条件路由均在编译期静态确定，由 LangGraph Harness 驱动循环执行。各节点是工作流中具有特定职责的处理单元，而非自主决策的独立 Agent。
 
 ```mermaid
-flowchart TD
+flowchart LR
     Start([User Query]) --> Planner
 
     subgraph Harness["Harness Loop"]
